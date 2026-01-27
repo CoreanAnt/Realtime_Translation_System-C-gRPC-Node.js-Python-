@@ -1,0 +1,22 @@
+# --- [ Common ] ---
+*.exe
+*.dll
+.env
+temp_audio/
+
+# --- [ Node.js (TransInstructor) ] ---
+node_modules/
+npm-debug.log*
+
+# --- [ Python (TransWorker) ] ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# --- [ C# / .NET (TransServer, TransStudent) ] ---
+bin/
+obj/
+.vs/
+*.user
+*.suo

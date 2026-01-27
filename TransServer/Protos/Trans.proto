@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package lecture;
+
+option csharp_namespace = "Trans.gRPC";
+
+// 1. 데이터 메시지
+message AudioChunk {
+  bytes pcm_data = 1;        
+  string speaker_id = 2;     
+  bool is_cloud_processed = 3; 
+  string text_data = 4;      
+  string language_code = 5;  
+}
+
+message ServerStatus {
+  bool success = 1;          
+  int32 active_student_count = 2; 
+  string server_message = 3; 
+}
+
+message BroadcastMessage {
+  bytes audio_data = 1;      
+  string subtitle = 2;       
+  string language_code = 3;  
+  int64 timestamp = 4;       
+}
+
+message StudentRequest {
+  string student_id = 1;
+  string target_language = 2; 
+}
+
+// 2. 서비스 정의
+service LectureService {
+  rpc StreamLecture (stream AudioChunk) returns (stream ServerStatus);
+  rpc SubscribeClass (StudentRequest) returns (stream BroadcastMessage);
+}
+
+// 3. AI 워커 (나중에 Python 연결할 때 사용)
+service AiWorkerService {
+  rpc ProcessTranslation (stream AudioChunk) returns (stream BroadcastMessage);
+}

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package lecture;
+
+// 1. 데이터 메시지
+// AI 워커가 입력으로 받는 오디오 데이터
+message AudioChunk {
+  bytes pcm_data = 1;        
+  string speaker_id = 2;     
+  bool is_cloud_processed = 3; 
+  string text_data = 4;      
+  string language_code = 5;  
+}
+
+// AI 워커가 결과로 내뱉는 데이터 (5개국어 JSON + TTS 오디오)
+message BroadcastMessage {
+  bytes audio_data = 1;      
+  string subtitle = 2;       
+  string language_code = 3;  
+  int64 timestamp = 4;       
+}
+
+// 학생 참여 요청 (향후 확장성을 위해 유지)
+message StudentRequest {
+  string student_id = 1;
+  string target_language = 2; 
+}
+
+// 2. 서비스 정의
+// 파이썬 서버가 실제로 구현하는 서비스
+service AiWorkerService {
+  rpc ProcessTranslation (stream AudioChunk) returns (stream BroadcastMessage);
+}

@@ -1,0 +1,122 @@
+1.
+제일먼저 프로토 파일 만들어야 하지만
+dotnet new grpc -o TransServer
+dotnet add package Grpc.Net.ClientFactory
+먼저 서버 만들고
+
+2.
+이후에 프로토 작성
+이후
+.csproj
+  <ItemGroup>
+    <Protobuf Include="Protos\Trans.proto" GrpcServices="Both" />
+  </ItemGroup>
+이걸로 수정
+그리고 코드 짜고 빌드
+
+3.
+클라이언트(노드js)
+mkdir TransInstructor
+cd TransInstructor
+npm install @grpc/grpc-js @grpc/proto-loader @google/genai dotenv
+환경 세팅하고
+
+4.
+.env파일 만들고 api작성
+코드 작성
+이후 ffmpeg.exe를 다운받아 같은 폴더로 이동(ffmpeg-2026-01-26-git-fe0813d6e2-full_build 이걸로 받음)
+모델은 gemini-2.5-flash-native-audio-preview-12-2025 이걸 사용
+
+5.
+이후 번역된 언어를 듣기 위해 콘솔 만듦
+dotnet new console -o TransStudent
+
+dotnet add package Grpc.Net.Client
+dotnet add package Google.Protobuf
+dotnet add package Grpc.Tools
+dotnet add package NAudio
+라이브러리 설치
+
+당연히 csproj에
+<ItemGroup>
+    <Protobuf Include="Protos\Trans.proto" GrpcServices="Client" />
+  </ItemGroup>
+이거 추가
+이후소리 잘 나는거 확인
+
+6.
+이제 파이썬으로 로컬 통역 프로젝트 만들기
+STT와 LLM조합으로 번역 진행하기로 함
+
+가상환경 작성 (3.11 으로 프로젝트 환경 설정)
+py -3.11 -m venv .venv
+가상환경 실행
+.\.venv\Scripts\activate
+
+이후 python --version 버전확인
+pip 업그레이드
+python -m pip install --upgrade pip
+
+가상환경에 CUDA 13.0 버전용 PyTorch 설치
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130
+
+# SenseVoice(FunASR), Qwen(Transformers), 가속기(Accelerate)
+pip install funasr modelscope transformers accelerate qwen_vl_utils
+
+# gRPC 및 오디오 처리 도구
+pip install grpcio grpcio-tools protobuf soundfile numpy
+
+# TTS 라이브러리
+pip install edge-tts
+
+#프로토파일 넣고 나서 컴파일
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. Trans.proto
+
+#이후 코드 짜서
+python server.py
+
+
+
+/////////////
+
+실제로 canary-qwen-2.5b사용하고 싶을 경우는 아래와 같은 라이브러리를 설치해야한다(파이썬3.10 추천)
+pip install Cython (C++ 연결)
+pip install "nemo_toolkit[asr]"
+# gRPC, Protobuf 버전 고정 및 추가 라이브러리(Pandas, Sacrebleu) 한방 설치
+pip install "protobuf==5.29.5" "grpcio==1.64.1" "grpcio-tools==1.64.1" numpy soundfile sacrebleu pandas
+pip install sacrebleu pandas
+
+프로토파일 옮기고 .py 코드를 작성한 후
+이후에 
+python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. Trans.proto
+변환 완료후
+python server.py
+실행
+
+////////////////
+
+만약 학생 클라이언트를 학생 앱 프로젝트로 만드려면 (하다가 잘 안됨)
+
+또 오류가 나오는데 비쥬얼 스튜디오에서 maui를 도구에서 추가하였음에도 새프로젝트에서 인식못하는 문제가 발생
+dotnet workload install maui
+하고 시스템 변수 조금 변경하고 다시시작하니 되었음(그냥 다시시작 해도 되지 않았을까?)
+
+이후 프로젝트 만들고
+프로젝트를 우클릭 -> NuGet 패키지 관리 -> 찾아보기 탭에서 다음 3개를 검색 설치
+Google.Protobuf
+Grpc.Net.Client
+Grpc.Tools
+NAudio (오디오 재생용)
+
+Trans.proto 파일을 StudentClient 프로젝트 폴더 안에 복사해 넣고
+StudentClient.csproj 파일을 더블 클릭(또는 우클릭 -> 프로젝트 파일 편집)해서 아래 설정을 추가
+<ItemGroup>
+  <Protobuf Include="Protos\Trans.proto" GrpcServices="Client" />
+</ItemGroup>
+
+Platforms/Windows/Package.appxmanifest 파일을 열고 "기능(Capabilities)" 탭에서 **"인터넷(Client & Server)"**이 체크되어 있는지 확인
+
+MainPage.xaml.cs 그리고 MainPage.xaml 수정후 빌드
+
+지속적으로 프로토 파일의 위치를 찾지 못하여 잠시 보류
+

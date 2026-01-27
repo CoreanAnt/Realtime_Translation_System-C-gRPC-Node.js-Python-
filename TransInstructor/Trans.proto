@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package lecture;
+
+// 1. 데이터 메시지
+// C# 서버 및 Python 워커로 전송하는 마이크 데이터
+message AudioChunk {
+  bytes pcm_data = 1;        
+  string speaker_id = 2;     
+  bool is_cloud_processed = 3; 
+  string text_data = 4;      
+  string language_code = 5;  
+}
+
+// C# 서버로부터 받는 상태 메시지
+message ServerStatus {
+  bool success = 1;          
+  int32 active_student_count = 2; 
+  string server_message = 3; 
+}
+
+// Python AI 워커로부터 받는 통역 결과
+message BroadcastMessage {
+  bytes audio_data = 1;      
+  string subtitle = 2;       
+  string language_code = 3;  
+  int64 timestamp = 4;       
+}
+
+// 2. 서비스 정의
+// [C# 서버] 강사가 방송을 송출할 때 사용
+service LectureService {
+  rpc StreamLecture (stream AudioChunk) returns (stream ServerStatus);
+}
+
+// [Python 워커] AI에게 번역을 요청할 때 사용
+service AiWorkerService {
+  rpc ProcessTranslation (stream AudioChunk) returns (stream BroadcastMessage);
+}
