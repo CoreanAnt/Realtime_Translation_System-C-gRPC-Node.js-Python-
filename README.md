@@ -92,3 +92,7 @@ pip install funasr modelscope transformers accelerate qwen\_vl\_utils grpcio grp
 
 python -m grpc\_tools.protoc -I. --python\_out=. --grpc\_python\_out=. Trans.proto
 
+
+https://github.com/user-attachments/assets/3dc69e5e-a377-4bac-b15f-8562feb76f3c
+
+
